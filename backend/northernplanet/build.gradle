@@ -1,0 +1,96 @@
+plugins {
+    id 'org.springframework.boot' version '2.5.5'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+    id 'org.springframework.experimental.aot' version '0.10.4'
+    id 'org.graalvm.buildtools.native' version '0.9.3'
+    id 'org.hibernate.orm'
+
+}
+
+group = 'com.pyhu'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    maven { url 'https://repo.spring.io/release' }
+    mavenCentral()
+}
+
+dependencies {
+    runtimeOnly 'mysql:mysql-connector-java'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    //developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    //springframework
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.5.3'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+
+    //springfox
+    implementation("io.springfox:springfox-bean-validators:3.0.0")
+    implementation("io.springfox:springfox-boot-starter:3.0.0")
+    implementation("io.springfox:springfox-data-rest:3.0.0")
+
+
+    //swagger
+    implementation("io.springfox:springfox-swagger2:3.0.0")
+    implementation("io.springfox:springfox-swagger-ui:3.0.0")
+
+    //apache
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.13'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
+
+    //oauth2, jwt
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    //guava
+    implementation group: 'com.google.guava', name: 'guava', version: '21.0'
+
+    //poi (ppt to png)
+//    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '3.17'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.2'
+
+    //pdfbox (pdf to png)
+    implementation group: 'org.apache.pdfbox', name: 'pdfbox', version: '2.0.24'
+    implementation group: 'org.apache.pdfbox', name: 'pdfbox-tools', version: '2.0.24'
+
+}
+
+test {
+    useJUnitPlatform()
+}
+
+bootBuildImage {
+    builder = 'paketobuildpacks/builder:tiny'
+    environment = ['BP_NATIVE_IMAGE': 'true']
+}
+
+nativeBuild {
+    classpath processAotResources.outputs, compileAotJava.outputs
+}
+
+nativeTest {
+    classpath processAotTestResources.outputs, compileAotTestJava.outputs
+}
+
+hibernate {
+    enhance {
+        enableLazyInitialization = true
+        enableDirtyTracking = true
+        enableAssociationManagement = true
+        enableExtendedEnhancement = false
+    }
+}
